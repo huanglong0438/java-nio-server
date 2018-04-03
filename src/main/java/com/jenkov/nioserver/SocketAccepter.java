@@ -36,10 +36,12 @@ public class SocketAccepter implements Runnable{
 
         while(true){
             try{
+                // ServerSocketChannel的accept方法，跟ServerSocket一样
                 SocketChannel socketChannel = this.serverSocket.accept();
 
                 System.out.println("Socket accepted: " + socketChannel);
 
+                // 新连接的Socket加入队列
                 //todo check if the queue can even accept more sockets.
                 this.socketQueue.add(new Socket(socketChannel));
 

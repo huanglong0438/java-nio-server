@@ -11,6 +11,7 @@ package com.jenkov.nioserver;
  */
 public class QueueIntFlip {
 
+    // 每个一格element是一个section
     public int[] elements = null;
 
     public int capacity = 0;
@@ -46,20 +47,24 @@ public class QueueIntFlip {
     public boolean put(int element){
         if(!flipped){
             if(writePos == capacity){
+                // 等于capacity说明超了，就flip（开启覆盖模式）
                 writePos = 0;
                 flipped = true;
 
                 if(writePos < readPos){
+                    // 走到这里说明读了，所以那些读过的位置就可以覆盖了，这个flip就是这个意思
                     elements[writePos++] = element;
                     return true;
                 } else {
                     return false;
                 }
             } else {
+                // 没超过capacity就规规矩矩的往elements里塞 0-4K 1-8K ... n-4n K
                 elements[writePos++] = element;
                 return true;
             }
         } else {
+            // 覆盖模式
             if(writePos < readPos ){
                 elements[writePos++] = element;
                 return true;
@@ -118,15 +123,23 @@ public class QueueIntFlip {
     }
 
 
+    /**
+     * 和put相反的是，take是从 0-4K 1-8K ... n-4n K 中取出数据
+     *
+     * @return
+     */
     public int take() {
         if(!flipped){
+            // 不是覆盖模式的时候，说明写位置在读位置后面，规规矩矩的读
             if(readPos < writePos){
                 return elements[readPos++];
             } else {
                 return -1;
             }
         } else {
+            // 覆盖模式的时候，写位置在读位置前面
             if(readPos == capacity){
+                // 读过界了，就继续读到写操作的位置
                 readPos = 0;
                 flipped = false;
 
@@ -136,6 +149,7 @@ public class QueueIntFlip {
                     return -1;
                 }
             } else {
+                // 读还没过界，那就规规矩矩的读
                 return elements[readPos++];
             }
         }

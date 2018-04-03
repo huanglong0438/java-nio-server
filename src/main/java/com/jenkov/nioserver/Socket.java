@@ -11,6 +11,9 @@ public class Socket {
 
     public long socketId;
 
+    /**
+     * 每个Socket都有一个Channel（本质就是Socket），一个Reader，一个Writer
+     */
     public SocketChannel  socketChannel = null;
     public IMessageReader messageReader = null;
     public MessageWriter  messageWriter = null;
@@ -29,10 +32,12 @@ public class Socket {
         int totalBytesRead = bytesRead;
 
         while(bytesRead > 0){
+            // 一直读，全撸出来
             bytesRead = this.socketChannel.read(byteBuffer);
             totalBytesRead += bytesRead;
         }
         if(bytesRead == -1){
+            // 读到末尾了
             this.endOfStreamReached = true;
         }
 
@@ -43,6 +48,7 @@ public class Socket {
         int bytesWritten      = this.socketChannel.write(byteBuffer);
         int totalBytesWritten = bytesWritten;
 
+        // 一直写，直到byteBuffer被撸空
         while(bytesWritten > 0 && byteBuffer.hasRemaining()){
             bytesWritten = this.socketChannel.write(byteBuffer);
             totalBytesWritten += bytesWritten;

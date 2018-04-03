@@ -25,14 +25,17 @@ public class Server {
 
     public void start() throws IOException {
 
+        // socket的队列
         Queue socketQueue = new ArrayBlockingQueue(1024); //move 1024 to ServerConfig
 
+        // 接受新连接的线程
         this.socketAccepter  = new SocketAccepter(tcpPort, socketQueue);
 
-
+        // 读和写的buffer
         MessageBuffer readBuffer  = new MessageBuffer();
         MessageBuffer writeBuffer = new MessageBuffer();
 
+        // 处理请求的线程
         this.socketProcessor = new SocketProcessor(socketQueue, readBuffer, writeBuffer,  this.messageReaderFactory, this.messageProcessor);
 
         Thread accepterThread  = new Thread(this.socketAccepter);

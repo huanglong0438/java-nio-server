@@ -24,6 +24,7 @@ public class Message {
 
     /**
      * Writes data from the ByteBuffer into this message - meaning into the buffer backing this message.
+     * 把buffer中的数据写入到message(即底层的sharedArray字节数组)
      *
      * @param byteBuffer The ByteBuffer containing the message data to write.
      * @return
@@ -32,12 +33,15 @@ public class Message {
         int remaining = byteBuffer.remaining();
 
         while(this.length + remaining > capacity){
+            // 如果 [当前的消息长度+buffer里的消息长度] 超过上限(上限是当前小中大的一格大小限制)了,也就是消息的长度超过一格了,需要扩容
+            // 消息的长度超过当前messageBuffer的一个限制了,就扩张,换大号的槽
             if(!this.messageBuffer.expandMessage(this)) {
                 return -1;
             }
         }
 
         int bytesToCopy = Math.min(remaining, this.capacity - this.length);
+        // 把buffer中的数据写入到sharedArray
         byteBuffer.get(this.sharedArray, this.offset + this.length, bytesToCopy);
         this.length += bytesToCopy;
 
